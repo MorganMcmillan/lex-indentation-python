@@ -1,0 +1,17 @@
+starter
+newlined
+    indented
+    indentedOnNewline
+        indentedAgain
+    dedentedOne
+
+    blankLineAbove
+dedentedZero
+
+Indent1
+    Indent2
+        Indent3
+MultiDedent
+
+NoDedent
+        
