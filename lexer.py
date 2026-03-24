@@ -1,8 +1,10 @@
 import string
 
 identifier = set(string.ascii_letters) | set(string.digits)
+operator = set("+-*/%|&^")
 newline = set("\r\n")
-ws = set(string.whitespace) - newline
+ws_nl = set(string.whitespace)
+ws = ws_nl - newline
 
 # Counts the number of times the current leading whitespace was dedented
 def count_dedents(indents, leading_whitespace) -> int:
@@ -36,6 +38,9 @@ class Lexer:
         char = self.peek()
         self.current += 1
         return char
+
+    def skip(self):
+        self.current += 1
 
     def take_while(self, chars: set[str]) -> str:
         start = self.current
@@ -86,6 +91,14 @@ class Lexer:
                         break
                     # Undo needless leading whitespace
                     self.tokens.pop()
+            elif self.peek() == '\\':
+                self.skip()
+                # Skip next line's indentation
+                self.take_while(ws_nl)
+            elif self.peek() in operator:
+                self.tokens.append(("Operator", self.take_while(operator)))
+                # Skip next line's indentation
+                self.take_while(ws_nl)
             elif self.peek() in ws:
                 self.take_while(ws)
 

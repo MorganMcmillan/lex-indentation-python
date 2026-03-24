@@ -6,4 +6,4 @@ This is a quick little practice I did to figure out how to lex `indent` and `ded
 
 - [x] Lex `indent`, `dedent`, and `newline` tokens
 - [x] Ignore blank lines
-- [ ] Implement the off-side rule for operator tokens (I.e. `+`, `-`, `*`, `/`)
+- [x] Implement indentation ignoring for operator tokens (I.e. `+`, `-`, `*`, `/`) and the blank `\` token

@@ -1,17 +1,5 @@
-starter
-newlined
-    indented
-    indentedOnNewline
-        indentedAgain
-    dedentedOne
+foo + bar +
+            IgnoreIndent \
+    - AnyIndent
 
-    blankLineAbove
-dedentedZero
-
-Indent1
-    Indent2
-        Indent3
-MultiDedent
-
-NoDedent
-        
+Hello

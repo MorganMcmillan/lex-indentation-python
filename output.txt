@@ -1,27 +1,10 @@
 Tokens:
-('Word', 'starter')
+('Word', 'foo')
+('Operator', '+')
+('Word', 'bar')
+('Operator', '+')
+('Word', 'IgnoreIndent')
+('Operator', '-')
+('Word', 'AnyIndent')
 Newline
-('Word', 'newlined')
-Indent
-('Word', 'indented')
-Newline
-('Word', 'indentedOnNewline')
-Indent
-('Word', 'indentedAgain')
-Dedent
-('Word', 'dedentedOne')
-Newline
-('Word', 'blankLineAbove')
-Dedent
-('Word', 'dedentedZero')
-Newline
-('Word', 'Indent1')
-Indent
-('Word', 'Indent2')
-Indent
-('Word', 'Indent3')
-Dedent
-Dedent
-('Word', 'MultiDedent')
-Newline
-('Word', 'NoDedent')
+('Word', 'Hello')
