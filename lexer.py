@@ -47,33 +47,72 @@ class Lexer:
         while self.peek() in chars:
             self.current += 1
         return self.input[start:self.current]
+    
+    def is_single_line_comment_next(self) -> bool:
+        if len(self.input) > (self.current + 1):
+            return False
+        return self.peek() == '/' and self.input[self.current + 1] == '/'
+
+    def is_multi_line_comment_next(self) -> bool:
+        if len(self.input) > (self.current + 1):
+            return False
+        return self.peek() == '/' and self.input[self.current + 1] == '*'
+
+    def take_until(self, chars: set[str]) -> str:
+        start = self.current
+        while self.peek() not in chars:
+            self.current += 1
+        return self.input[start:self.current]
+
+    def handle_single_line_comment(self):
+        self.take_until(newline)
+        self.take_while(newline)
+        return self.handle_leading_whitespace()
+
+    def handle_multi_line_comment(self):
+        # Take until "*/"
+        while not (self.peek() == '*' and self.input[self.current + 1] == '/'):
+            self.skip()
+
+        # Skip twice past "*/"
+        self.skip()
+        self.skip()
+        # Note: the end of a multi-line comment is treated as being on the same line, as it does not lex newline characters
 
     def handle_leading_whitespace(self):
         leading_whitespace = self.take_while(ws)
 
-        # If the line is blank (newline characters only), then discard this token
+        # If the line is blank (newline characters or comment only), then discard this token
         if self.peek() in newline:
             self.take_while(newline)
             # Handle the next line's whitespace
             return self.handle_leading_whitespace()
+        elif self.is_single_line_comment_next():
+            return self.handle_single_line_comment()
+        elif self.is_multi_line_comment_next():
+            self.handle_multi_line_comment()
+            return
 
         # Get indentation type:
         # Indentation is same: newline
         top_indentation = self.indentation_stack[-1]
-        if top_indentation == leading_whitespace:
+        if leading_whitespace == top_indentation:
             self.tokens.append("Newline")
 
-        # Indentation down: dedent
+        # Indentation is lesser: dedent
         elif len(leading_whitespace) < len(top_indentation):
             dedents = count_dedents(self.indentation_stack, leading_whitespace)
             for _ in range(dedents):
                 self.indentation_stack.pop()
                 self.tokens.append("Dedent")
 
-        # Indentation up: indent
+        # Indentation is greater: indent
         elif len(leading_whitespace) > len(top_indentation):
             self.indentation_stack.append(leading_whitespace)
             self.tokens.append("Indent")
+        
+        # Indentation is wonky: error
+        raise RuntimeError("Mismatched indentation!")
 
     def lex(self):
         while self.not_eof():
@@ -96,9 +135,15 @@ class Lexer:
                 # Skip next line's indentation
                 self.take_while(ws_nl)
             elif self.peek() in operator:
-                self.tokens.append(("Operator", self.take_while(operator)))
-                # Skip next line's indentation
-                self.take_while(ws_nl)
+                # '/' is included in the operators, so its comment sequences need to be handled
+                if self.is_single_line_comment_next():
+                    self.handle_single_line_comment()
+                elif self.is_multi_line_comment_next():
+                    self.handle_multi_line_comment()
+                else:
+                    self.tokens.append(("Operator", self.take_while(operator)))
+                    # Skip next line's indentation
+                    self.take_while(ws_nl)
             elif self.peek() in ws:
                 self.take_while(ws)
 
